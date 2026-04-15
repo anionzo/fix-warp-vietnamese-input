@@ -5,7 +5,14 @@ Hướng dẫn nhanh khi chạy project này trong môi trường OpenCode/agent
 ## Run nhanh
 
 ```bash
-bash fix-warp-vn.sh
+# Recommended: native IME (no clipboard)
+bash fix-warp-vn.sh --mode native
+```
+
+Fallback nếu native vẫn lỗi:
+
+```bash
+bash fix-warp-vn.sh --mode clipboard
 ```
 
 Sau đó:
@@ -25,11 +32,11 @@ source ~/.zshrc
 
 ## Luồng verify chuẩn
 
-1. Chạy script: `bash fix-warp-vn.sh`
+1. Chạy script (ưu tiên): `bash fix-warp-vn.sh --mode native`
 2. Đóng hoàn toàn Warp, mở lại
 3. Kiểm tra `vn-status`
 4. Test gõ bằng `vn-test`
-5. Nếu vẫn lỗi (Windows + UniKey): bật `Sử dụng clipboard để gõ`
+5. Nếu vẫn lỗi: `bash fix-warp-vn.sh --mode clipboard`
 
 ## Uninstall
 

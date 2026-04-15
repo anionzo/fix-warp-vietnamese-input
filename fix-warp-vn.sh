@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+MODE="native"  # native | clipboard
+
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 BLUE='\033[0;34m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
 
@@ -211,30 +213,34 @@ fix_macos_specific() {
 
 fix_windows_specific() {
     if [ "$OS" != "windows" ]; then return; fi
-    info "Áp dụng fix cho Windows (UniKey)..."
-    echo ""
-    echo -e "${CYAN}${BOLD}=== Hướng dẫn cấu hình UniKey cho Warp ===${NC}"
-    echo ""
-    echo "  1. Mở UniKey → Click chuột phải vào icon UniKey trên taskbar"
-    echo "  2. Chọn Bảng điều khiển (Control Panel)"
-    echo "  3. Thiết lập như sau:"
-    echo "     +-------------------------------------------+"
-    echo "     | Bảng mã:     Unicode                      |"
-    echo "     | Kiểu gõ:     Telex                        |"
-    echo "     | Mở rộng:                                  |"
-    echo "     |   [x] Cho phép gõ tự do                   |"
-    echo "     |   [x] Tự động khôi phục phím không dấu    |"
-    echo "     |   [x] Bỏ dấu kiểu mới                     |"
-    echo "     +-------------------------------------------+"
+    info "Áp dụng fix cho Windows..."
+    info "Chế độ hiện tại: ${BOLD}${MODE}${NC}"
     echo ""
 
-    echo "  4. QUAN TRỌNG: Nếu vẫn bị lỗi:"
-    echo "     → Mở rộng → ☑ Sử dụng clipboard để gõ"
-    echo "     (Đây là workaround hiệu quả nhất cho Warp trên Windows)"
-    echo ""
-    echo "  5. Nhấn Đóng và restart Warp Terminal"
-    echo ""
-    success "Đã hiển thị hướng dẫn UniKey"
+    if [ "$MODE" = "native" ]; then
+        echo -e "${CYAN}${BOLD}=== Khuyến nghị tốt nhất: Native IME (không clipboard) ===${NC}"
+        echo ""
+        echo "  1. Windows Settings → Time & language → Language & region"
+        echo "  2. Add keyboard: Vietnamese Telex (native của Windows)"
+        echo "  3. Trong Warp, chuyển input bằng Win+Space"
+        echo "  4. Nếu dùng UniKey, KHÔNG bật 'Sử dụng clipboard để gõ'"
+        echo "  5. Test lại: vn-test"
+        echo ""
+        echo "  Nếu vẫn lỗi, dùng fallback clipboard mode:"
+        echo "    bash fix-warp-vn.sh --mode clipboard"
+        echo ""
+    else
+        echo -e "${CYAN}${BOLD}=== Fallback: UniKey clipboard mode ===${NC}"
+        echo ""
+        echo "  1. Mở UniKey → Click chuột phải vào icon taskbar"
+        echo "  2. Chọn Bảng điều khiển (Control Panel)"
+        echo "  3. Chọn: Unicode + Telex"
+        echo "  4. Mở rộng → ☑ Sử dụng clipboard để gõ"
+        echo "  5. Đóng và restart Warp Terminal"
+        echo ""
+    fi
+
+    success "Đã hiển thị hướng dẫn cho Windows"
 }
 
 verify_install() {
@@ -249,14 +255,53 @@ verify_install() {
     echo "  3. Gõ vn-test để kiểm tra tiếng Việt"
     echo "  4. Gõ vn-status để xem trạng thái fix"
     echo ""
-    echo "  Nếu vẫn bị lỗi trên Windows:"
-    echo "  → Mở UniKey → Mở rộng → ☑ Sử dụng clipboard để gõ"
-    echo ""
+
+    if [ "$OS" = "windows" ] && [ "$MODE" = "native" ]; then
+        echo "  Khuyến nghị: ưu tiên Native IME (không clipboard)."
+        echo "  Nếu vẫn lỗi: bash fix-warp-vn.sh --mode clipboard"
+        echo ""
+    elif [ "$OS" = "windows" ]; then
+        echo "  Bạn đang dùng clipboard fallback mode."
+        echo "  Đổi lại mode tốt hơn: bash fix-warp-vn.sh --mode native"
+        echo ""
+    fi
+
     echo "  Gỡ cài đặt: ./uninstall.sh"
     echo ""
 }
 
+parse_args() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --mode)
+                MODE="${2:-}"
+                shift 2
+                ;;
+            --help|-h)
+                cat << 'HELP'
+Usage: bash fix-warp-vn.sh [--mode native|clipboard]
+
+Modes:
+  native     Recommended. Prefer Windows native Vietnamese IME (no clipboard).
+  clipboard  Fallback mode for UniKey clipboard typing.
+HELP
+                exit 0
+                ;;
+            *)
+                warn "Bỏ qua tham số không hợp lệ: $1"
+                shift
+                ;;
+        esac
+    done
+
+    if [ "$MODE" != "native" ] && [ "$MODE" != "clipboard" ]; then
+        error "--mode chỉ nhận: native | clipboard"
+        exit 1
+    fi
+}
+
 main() {
+    parse_args "$@"
     banner
     detect_os
     get_warp_config_dir

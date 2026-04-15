@@ -40,7 +40,22 @@ Script sẽ tự động:
 ```bash
 git clone https://github.com/anionzo/fix-warp-vietnamese-input.git
 cd fix-warp-vietnamese-input
-bash fix-warp-vn.sh
+
+# Recommended (mặc định): Native IME, không dùng clipboard
+bash fix-warp-vn.sh --mode native
+```
+
+### Mode triển khai
+
+```bash
+# Tốt nhất (khuyến nghị): Native IME (không clipboard)
+bash fix-warp-vn.sh --mode native
+
+# Fallback khi native vẫn lỗi: UniKey clipboard mode
+bash fix-warp-vn.sh --mode clipboard
+
+# Xem help
+bash fix-warp-vn.sh --help
 ```
 
 ### Cách 2: Dùng installer (macOS/Linux/Git Bash)
@@ -91,22 +106,28 @@ source ~/.zshrc
 
 ---
 
-## 🪟 Khuyến nghị cho Windows + UniKey (Telex)
+## 🪟 Khuyến nghị cho Windows (ưu tiên mode native)
 
-Trong UniKey Control Panel:
+### ✅ Ưu tiên tốt nhất: Native IME (không clipboard)
 
-- Bảng mã: **Unicode**
-- Kiểu gõ: **Telex**
-- Nên bật:
-  - `Cho phép gõ tự do`
-  - `Tự động khôi phục phím không dấu`
-  - `Bỏ dấu kiểu mới`
+1. Vào `Windows Settings → Time & language → Language & region`
+2. Add keyboard: **Vietnamese Telex** (native của Windows)
+3. Trong Warp, đổi input bằng `Win + Space`
+4. Nếu dùng UniKey song song: **không bật** `Sử dụng clipboard để gõ`
 
-Nếu vẫn lỗi, bật thêm:
+### 🧯 Fallback khi native vẫn lỗi
 
-- ✅ **Sử dụng clipboard để gõ**
+Chạy:
 
-> Đây là workaround hiệu quả nhất cho Warp trên Windows trong nhiều trường hợp.
+```bash
+bash fix-warp-vn.sh --mode clipboard
+```
+
+Rồi bật trong UniKey:
+
+- ✅ `Sử dụng clipboard để gõ`
+
+> Tóm lại: **native trước, clipboard sau**.
 
 ---
 
@@ -141,8 +162,11 @@ Backup được lưu tại:
 
 - Kiểm tra bạn đã **restart hẳn Warp** chưa
 - Chạy `vn-status` để xem trạng thái env
-- Bật `Sử dụng clipboard để gõ` trong UniKey
-- Nếu cần, chạy lại script lần nữa (idempotent, không inject trùng block)
+- Nếu đang native mode mà vẫn lỗi, chuyển fallback:
+  - `bash fix-warp-vn.sh --mode clipboard`
+- Nếu đang clipboard mode, thử quay lại:
+  - `bash fix-warp-vn.sh --mode native`
+- Có thể chạy script nhiều lần an toàn (idempotent, không inject trùng block)
 
 ---
 
