@@ -1,0 +1,16 @@
+.pi/
+*.bak
+*.log
+.DS_Store
+Thumbs.db
+
+# >>> KNOWNS >>>
+# Managed by Knowns CLI — do not edit manually.
+# Run 'knowns init' to regenerate this block.
+.knowns/*
+!.knowns/config.json
+!.knowns/docs/
+!.knowns/docs/**
+!.knowns/templates/
+!.knowns/templates/**
+# <<< KNOWNS <<<
