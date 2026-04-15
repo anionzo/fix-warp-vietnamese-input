@@ -250,7 +250,7 @@ verify_install() {
     echo "  4. Gõ vn-status để xem trạng thái fix"
     echo ""
     echo "  Nếu vẫn bị lỗi trên Windows:"
-    echo "  -> Mo UniKey → Mở rộng → ☑ Sử dụng clipboard để gõ"
+    echo "  → Mở UniKey → Mở rộng → ☑ Sử dụng clipboard để gõ"
     echo ""
     echo "  Gỡ cài đặt: ./uninstall.sh"
     echo ""
