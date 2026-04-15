@@ -1,27 +1,49 @@
 # 🇻🇳 Fix Warp Vietnamese Input
 
-> Khắc phục lỗi gõ tiếng Việt (UniKey Telex/VNI) trên Warp Terminal
-
-## ⚡ Vấn đề
-
-Warp Terminal xử lý IME (Input Method Editor) chưa tốt, có thể gây các lỗi:
-
-- ❌ **Chữ bị lặp/dính**: `xin chào` → `xxin cchhaaof`
-- ❌ **Không nhận dấu/thanh**: `xin chào bạn` → `xin ch b hf c`
-- ❌ **Ký tự bị nuốt hoặc nhân đôi**
-- ❌ **Pre-edit text hiển thị sai**
+Khắc phục lỗi gõ tiếng Việt (đặc biệt với UniKey Telex) trên Warp Terminal.
 
 ---
 
-## 🚀 Cài đặt nhanh
+## ⚠️ Vấn đề thường gặp
 
-### macOS / Linux
+Khi gõ tiếng Việt trong Warp, bạn có thể gặp:
+
+- Chữ bị lặp/dính ký tự
+- Không ăn dấu/thanh
+- Ký tự bị nuốt hoặc hiển thị sai
+- Cảm giác gõ Telex không ổn định
+
+Ví dụ lỗi thực tế:
+
+- `xin chào bạn hiền của tớ` → `xin ch b hf c`
+
+---
+
+## ✅ Tool này làm gì?
+
+Script sẽ tự động:
+
+1. Backup cấu hình hiện tại
+2. Patch Warp settings để giảm xung đột IME
+3. Inject cấu hình môi trường vào shell profile (`.bashrc` / `.zshrc`)
+4. Tạo helper command để test nhanh:
+   - `vn-test`
+   - `vn-status`
+5. In hướng dẫn tối ưu UniKey trên Windows
+
+---
+
+## 📦 Cài đặt
+
+### Cách 1: Chạy trực tiếp từ repo
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/anionzo/fix-warp-vietnamese-input/master/install.sh | bash
+git clone https://github.com/anionzo/fix-warp-vietnamese-input.git
+cd fix-warp-vietnamese-input
+bash fix-warp-vn.sh
 ```
 
-### Windows (Git Bash)
+### Cách 2: Dùng installer (macOS/Linux/Git Bash)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/anionzo/fix-warp-vietnamese-input/master/install.sh | bash
@@ -33,46 +55,58 @@ curl -fsSL https://raw.githubusercontent.com/anionzo/fix-warp-vietnamese-input/m
 iwr -useb https://raw.githubusercontent.com/anionzo/fix-warp-vietnamese-input/master/install.sh | bash
 ```
 
-> Nếu PowerShell báo không có `bash`, hãy dùng **Git Bash** rồi chạy lệnh ở trên.
-
-### Cài thủ công
-
-```bash
-git clone https://github.com/anionzo/fix-warp-vietnamese-input.git
-cd fix-warp-vietnamese-input
-bash fix-warp-vn.sh
-```
+> Nếu PowerShell báo không có `bash`, hãy dùng **Git Bash** và chạy lại lệnh installer.
 
 ---
 
-## 🔧 Tool này làm gì?
+## 🧪 Sau khi cài đặt (giải thích dễ hiểu)
 
-1. **Backup** cấu hình hiện tại
-2. **Patch Warp settings** để giảm xung đột IME
-3. **Thiết lập environment variables** cho input method
-4. **Inject shell profile** (`.bashrc` / `.zshrc`) với workaround
-5. **In hướng dẫn cấu hình UniKey** tối ưu cho Windows
+Vì script có thêm cấu hình vào shell profile (`.bashrc` / `.zshrc`), bạn cần mở phiên shell mới để nhận thay đổi.
 
----
+### Cách chuẩn nhất
 
-## ✅ Sau khi cài
-
-1. Đóng hoàn toàn Warp (không chỉ đóng tab)
-2. Mở lại Warp
-3. Chạy:
+1. **Đóng hẳn Warp** (thoát toàn bộ app, không chỉ đóng tab)
+2. **Mở lại Warp**
+3. Chạy lần lượt:
 
 ```bash
 vn-status
 vn-test
 ```
 
+### 2 lệnh này để làm gì?
+
+- `vn-status`: kiểm tra các biến môi trường/IME đã được nạp chưa
+- `vn-test`: mở chế độ test nhập để bạn thử gõ tiếng Việt ngay trong terminal
+
+### Nếu báo `command not found`?
+
+Chạy 1 trong 2 lệnh sau rồi thử lại:
+
+```bash
+source ~/.bashrc
+# hoặc
+source ~/.zshrc
+```
+
 ---
 
-## 📋 Yêu cầu
+## 🪟 Khuyến nghị cho Windows + UniKey (Telex)
 
-- [Warp Terminal](https://www.warp.dev/) đã cài
-- Bộ gõ tiếng Việt: UniKey / EVKey / GoTiengViet
-- Bash shell (Git Bash trên Windows)
+Trong UniKey Control Panel:
+
+- Bảng mã: **Unicode**
+- Kiểu gõ: **Telex**
+- Nên bật:
+  - `Cho phép gõ tự do`
+  - `Tự động khôi phục phím không dấu`
+  - `Bỏ dấu kiểu mới`
+
+Nếu vẫn lỗi, bật thêm:
+
+- ✅ **Sử dụng clipboard để gõ**
+
+> Đây là workaround hiệu quả nhất cho Warp trên Windows trong nhiều trường hợp.
 
 ---
 
@@ -82,50 +116,46 @@ vn-test
 bash uninstall.sh
 ```
 
-Backup nằm tại:
+Script sẽ:
 
-```bash
-~/.warp-vn-backup/
-```
+- Xóa block config đã inject trong shell profile
+- Cho phép bạn chọn restore từ backup
+
+Backup được lưu tại:
+
+- `~/.warp-vn-backup/`
 
 ---
 
-## 🛠️ Troubleshooting
+## 🧰 Yêu cầu
+
+- Warp Terminal
+- Bash shell
+- Bộ gõ tiếng Việt (UniKey / EVKey / GoTiengViet)
+
+---
+
+## ❓ Troubleshooting nhanh
 
 ### Vẫn lỗi sau khi chạy script?
 
-1. **Windows + UniKey**: bật `Mở rộng → ☑ Sử dụng clipboard để gõ`
-2. Restart hoàn toàn Warp
-3. Chạy `vn-status` để kiểm tra trạng thái
-4. Chạy `vn-test` để test trực tiếp
-
-### Lệnh hữu ích
-
-| Lệnh | Mô tả |
-|------|------|
-| `vn-test` | Test gõ tiếng Việt interactive |
-| `vn-status` | Xem trạng thái IME & fix |
-
----
-
-## 💡 Mẹo cho Windows + UniKey
-
-- Bảng mã: **Unicode**
-- Kiểu gõ: **Telex**
-- Nên bật:
-  - `Cho phép gõ tự do`
-  - `Tự động khôi phục phím không dấu`
-  - `Bỏ dấu kiểu mới`
-  - `Sử dụng clipboard để gõ` (nếu vẫn lỗi)
+- Kiểm tra bạn đã **restart hẳn Warp** chưa
+- Chạy `vn-status` để xem trạng thái env
+- Bật `Sử dụng clipboard để gõ` trong UniKey
+- Nếu cần, chạy lại script lần nữa (idempotent, không inject trùng block)
 
 ---
 
 ## 🤝 Đóng góp
 
-Mọi đóng góp đều được chào đón! Tạo Issue hoặc Pull Request tại:
+Welcome PR/Issue.
 
-- https://github.com/anionzo/fix-warp-vietnamese-input
+Repo: https://github.com/anionzo/fix-warp-vietnamese-input
+
+OpenCode note: xem thêm `OPENCODE.md`
+
+---
 
 ## 📝 License
 
-MIT License
+MIT
