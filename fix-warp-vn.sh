@@ -276,15 +276,31 @@ inject_shell_config() {
 
         local profile
         for profile in "${ps_profiles[@]}"; do
-            mkdir -p "$(dirname "$profile")"
-            if [ -f "$profile" ] && grep -q "$MARKER_START" "$profile"; then
+            local profile_path="$profile"
+
+            # Convert Windows path (e.g. C:\Users\...\profile.ps1) to MSYS path for file operations
+            if [[ "$profile_path" =~ ^[A-Za-z]:\\ ]] && command -v cygpath &>/dev/null; then
+                local converted_path
+                converted_path="$(cygpath -u "$profile_path" 2>/dev/null || true)"
+                if [ -n "$converted_path" ]; then
+                    profile_path="$converted_path"
+                fi
+            fi
+
+            if [ -z "$profile_path" ]; then
+                warn "Bỏ qua PowerShell profile path rỗng"
+                continue
+            fi
+
+            mkdir -p "$(dirname "$profile_path")"
+            if [ -f "$profile_path" ] && grep -q "$MARKER_START" "$profile_path"; then
                 local tmp_ps; tmp_ps=$(mktemp)
-                sed "/$MARKER_START/,/$MARKER_END/d" "$profile" > "$tmp_ps"
-                mv "$tmp_ps" "$profile"
+                sed "/$MARKER_START/,/$MARKER_END/d" "$profile_path" > "$tmp_ps"
+                mv "$tmp_ps" "$profile_path"
                 info "Đã xóa block cũ trong $profile"
             fi
-            touch "$profile"
-            write_env_block_powershell "$profile"
+            touch "$profile_path"
+            write_env_block_powershell "$profile_path"
             success "Đã thêm fix vào ${BOLD}${profile}${NC}"
         done
     fi
