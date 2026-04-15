@@ -166,6 +166,57 @@ fi
 ENVBLOCK
 }
 
+write_env_block_powershell() {
+    local target="$1"
+    cat >> "$target" << 'PSBLOCK'
+
+# >>> fix-warp-vietnamese-input >>>
+# Fix Vietnamese input (UniKey/EVKey) on Warp Terminal (PowerShell)
+
+if ($env:WARP_IS_LOCAL_SHELL_SESSION -or $env:TERM_PROGRAM -eq "WarpTerminal") {
+    $env:WARP_HONOR_PS1 = "1"
+
+    function vn-test {
+        Write-Host ""
+        Write-Host "=== Test gõ tiếng Việt trên Warp Terminal ==="
+        Write-Host ""
+        Write-Host "Hãy thử gõ các câu sau và so sánh:"
+        Write-Host "  Mẫu 1: Xin chào bạn!"
+        Write-Host "  Mẫu 2: Việt Nam đất nước tươi đẹp"
+        Write-Host "  Mẫu 3: Tôi đang sử dụng Warp Terminal"
+        Write-Host ""
+        Write-Host "Gõ thử vào đây (Enter khi xong, Ctrl+C để thoát):"
+        Write-Host ""
+        while ($true) {
+            $line = Read-Host "  >"
+            if ([string]::IsNullOrWhiteSpace($line)) { break }
+            Write-Host "  Bạn đã gõ: $line"
+        }
+        Write-Host ""
+        Write-Host "Nếu chữ hiển thị đúng -> Fix thành công!"
+        Write-Host "Nếu vẫn lỗi -> Thử các bước trong README troubleshooting"
+    }
+
+    function vn-status {
+        $termProgram = if ($env:TERM_PROGRAM) { $env:TERM_PROGRAM } else { "N/A" }
+        $warpHonorPs1 = if ($env:WARP_HONOR_PS1) { $env:WARP_HONOR_PS1 } else { "N/A" }
+
+        Write-Host ""
+        Write-Host "=== Trạng thái Vietnamese Input Fix ==="
+        Write-Host "  TERM_PROGRAM:    $termProgram"
+        Write-Host "  WARP_HONOR_PS1:  $warpHonorPs1"
+        Write-Host "  Shell:           PowerShell"
+        Write-Host "  OS:              Windows"
+        Write-Host ""
+        Write-Host "  Bộ gõ tiếng Việt:"
+        Write-Host "    Windows: Sử dụng UniKey, EVKey, hoặc GoTiengViet"
+        Write-Host ""
+    }
+}
+# <<< fix-warp-vietnamese-input <<<
+PSBLOCK
+}
+
 inject_shell_config() {
     info "Đang cấu hình shell profile..."
 
@@ -191,6 +242,52 @@ inject_shell_config() {
         write_env_block "$config"
         success "Đã thêm fix vào ${BOLD}${config}${NC}"
     done
+
+    if [ "$OS" = "windows" ]; then
+        local ps_profiles=()
+
+        add_ps_profile() {
+            local p="$1"
+            [ -z "$p" ] && return 0
+            local existing
+            for existing in "${ps_profiles[@]:-}"; do
+                [ "$existing" = "$p" ] && return 0
+            done
+            ps_profiles+=("$p")
+        }
+
+        if command -v pwsh &>/dev/null; then
+            while IFS= read -r p; do
+                add_ps_profile "$p"
+            done < <(pwsh -NoLogo -NoProfile -Command '$PROFILE.CurrentUserAllHosts; $PROFILE.CurrentUserCurrentHost' 2>/dev/null | tr -d '\r')
+        fi
+
+        if command -v powershell &>/dev/null; then
+            while IFS= read -r p; do
+                add_ps_profile "$p"
+            done < <(powershell -NoLogo -NoProfile -Command '$PROFILE.CurrentUserAllHosts; $PROFILE.CurrentUserCurrentHost' 2>/dev/null | tr -d '\r')
+        fi
+
+        # Fallback paths when PowerShell profile discovery is unavailable
+        add_ps_profile "$HOME/Documents/PowerShell/profile.ps1"
+        add_ps_profile "$HOME/Documents/PowerShell/Microsoft.PowerShell_profile.ps1"
+        add_ps_profile "$HOME/Documents/WindowsPowerShell/profile.ps1"
+        add_ps_profile "$HOME/Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1"
+
+        local profile
+        for profile in "${ps_profiles[@]}"; do
+            mkdir -p "$(dirname "$profile")"
+            if [ -f "$profile" ] && grep -q "$MARKER_START" "$profile"; then
+                local tmp_ps; tmp_ps=$(mktemp)
+                sed "/$MARKER_START/,/$MARKER_END/d" "$profile" > "$tmp_ps"
+                mv "$tmp_ps" "$profile"
+                info "Đã xóa block cũ trong $profile"
+            fi
+            touch "$profile"
+            write_env_block_powershell "$profile"
+            success "Đã thêm fix vào ${BOLD}${profile}${NC}"
+        done
+    fi
 }
 
 patch_warp_keybindings() {
