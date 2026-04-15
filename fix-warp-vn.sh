@@ -13,7 +13,7 @@ banner() {
     echo -e "${CYAN}${BOLD}"
     echo "======================================================"
     echo "     Fix Warp Vietnamese Input v1.0.0"
-    echo "     Khac phuc loi go tieng Viet tren Warp"
+    echo "     Khắc phục lỗi gõ tiếng Việt trên Warp"
     echo "======================================================"
     echo -e "${NC}"
 }
@@ -25,7 +25,7 @@ detect_os() {
         MINGW*|MSYS*|CYGWIN*) OS="windows";;
         *)        OS="unknown";;
     esac
-    info "He dieu hanh: ${BOLD}${OS}${NC}"
+    info "Hệ điều hành: ${BOLD}${OS}${NC}"
 }
 
 get_warp_config_dir() {
@@ -47,33 +47,33 @@ get_warp_config_dir() {
             WARP_SETTINGS_DIR="$WARP_CONFIG_DIR"
             ;;
         *)
-            error "Khong ho tro he dieu hanh nay!"
+            error "Không hỗ trợ hệ điều hành này!"
             exit 1
             ;;
     esac
-    info "Thu muc config Warp: ${BOLD}${WARP_CONFIG_DIR}${NC}"
+    info "Thư mục config Warp: ${BOLD}${WARP_CONFIG_DIR}${NC}"
 }
 
 BACKUP_DIR="$HOME/.warp-vn-backup/$(date +%Y%m%d_%H%M%S)"
 
 backup_configs() {
-    info "Dang backup cau hinh hien tai..."
+    info "Đang backup cấu hình hiện tại..."
     mkdir -p "$BACKUP_DIR"
     if [ -d "$WARP_CONFIG_DIR" ]; then
         cp -r "$WARP_CONFIG_DIR" "$BACKUP_DIR/warp-config" 2>/dev/null || true
-        success "Da backup Warp config -> $BACKUP_DIR/warp-config"
+        success "Đã backup Warp config -> $BACKUP_DIR/warp-config"
     fi
     for profile in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.bash_profile"; do
         if [ -f "$profile" ]; then
             cp "$profile" "$BACKUP_DIR/" 2>/dev/null || true
         fi
     done
-    success "Da backup shell profiles -> $BACKUP_DIR/"
+    success "Đã backup shell profiles -> $BACKUP_DIR/"
     echo "$BACKUP_DIR" > "$HOME/.warp-vn-backup/latest"
 }
 
 patch_warp_settings() {
-    info "Dang patch Warp settings..."
+    info "Đang patch Warp settings..."
     mkdir -p "$WARP_SETTINGS_DIR"
     local settings_file="$WARP_SETTINGS_DIR/user_preferences.json"
 
@@ -87,7 +87,7 @@ patch_warp_settings() {
     else
         echo '{ "HonorPS1": true }' > "$settings_file"
     fi
-    success "Da patch Warp settings"
+    success "Đã patch Warp settings"
 }
 
 MARKER_START="# >>> fix-warp-vietnamese-input >>>"
@@ -120,27 +120,27 @@ if [ -n "${WARP_IS_LOCAL_SHELL_SESSION:-}" ] || [ "${TERM_PROGRAM:-}" = "WarpTer
     # === Helper Functions ===
     vn-test() {
         echo ""
-        echo "=== Test go tieng Viet tren Warp Terminal ==="
+        echo "=== Test gõ tiếng Việt trên Warp Terminal ==="
         echo ""
-        echo "Hay thu go cac cau sau va so sanh:"
-        echo "  Mau 1: Xin chao ban!"
-        echo "  Mau 2: Viet Nam dat nuoc tuoi dep"
-        echo "  Mau 3: Toi dang su dung Warp Terminal"
+        echo "Hãy thử gõ các câu sau và so sánh:"
+        echo "  Mẫu 1: Xin chào bạn!"
+        echo "  Mẫu 2: Việt Nam đất nước tươi đẹp"
+        echo "  Mẫu 3: Tôi đang sử dụng Warp Terminal"
         echo ""
-        echo "Go thu vao day (Enter khi xong, Ctrl+C de thoat):"
+        echo "Gõ thử vào đây (Enter khi xong, Ctrl+C để thoát):"
         echo ""
         while IFS= read -r -p "  > " line; do
             if [ -z "$line" ]; then break; fi
-            echo "  Ban da go: $line"
+            echo "  Bạn đã gõ: $line"
         done
         echo ""
-        echo "Neu chu hien thi dung -> Fix thanh cong!"
-        echo "Neu van loi -> Thu cac buoc trong README troubleshooting"
+        echo "Nếu chữ hiển thị đúng → Fix thành công!"
+        echo "Nếu vẫn lỗi → Thử các bước trong README troubleshooting"
     }
 
     vn-status() {
         echo ""
-        echo "=== Trang thai Vietnamese Input Fix ==="
+        echo "=== Trạng thái Vietnamese Input Fix ==="
         echo "  TERM_PROGRAM:    ${TERM_PROGRAM:-N/A}"
         echo "  GTK_IM_MODULE:   ${GTK_IM_MODULE:-N/A}"
         echo "  QT_IM_MODULE:    ${QT_IM_MODULE:-N/A}"
@@ -149,13 +149,13 @@ if [ -n "${WARP_IS_LOCAL_SHELL_SESSION:-}" ] || [ "${TERM_PROGRAM:-}" = "WarpTer
         echo "  Shell:           $SHELL"
         echo "  OS:              $(uname -s)"
         echo ""
-        echo "  Bo go tieng Viet:"
+        echo "  Bộ gõ tiếng Việt:"
         if command -v ibus-daemon &>/dev/null; then echo "    - IBus detected"; fi
         if command -v fcitx5 &>/dev/null; then echo "    - Fcitx5 detected"; fi
         if command -v fcitx &>/dev/null; then echo "    - Fcitx detected"; fi
         case "$(uname -s)" in
-            Darwin*) echo "    macOS: Su dung bo go he thong hoac UniKey" ;;
-            MINGW*|MSYS*|CYGWIN*) echo "    Windows: Su dung UniKey, EVKey, hoac GoTiengViet" ;;
+            Darwin*) echo "    macOS: Sử dụng bộ gõ hệ thống hoặc UniKey" ;;
+            MINGW*|MSYS*|CYGWIN*) echo "    Windows: Sử dụng UniKey, EVKey, hoặc GoTiengViet" ;;
         esac
         echo ""
     }
@@ -165,7 +165,7 @@ ENVBLOCK
 }
 
 inject_shell_config() {
-    info "Dang cau hinh shell profile..."
+    info "Đang cấu hình shell profile..."
 
     local shell_configs=()
     if [ -f "$HOME/.zshrc" ] || [ "$SHELL" = "$(command -v zsh 2>/dev/null)" ]; then
@@ -183,76 +183,76 @@ inject_shell_config() {
             local tmp_file; tmp_file=$(mktemp)
             sed "/$MARKER_START/,/$MARKER_END/d" "$config" > "$tmp_file"
             mv "$tmp_file" "$config"
-            info "Da xoa block cu trong $config"
+            info "Đã xóa block cũ trong $config"
         fi
         touch "$config"
         write_env_block "$config"
-        success "Da them fix vao ${BOLD}${config}${NC}"
+        success "Đã thêm fix vào ${BOLD}${config}${NC}"
     done
 }
 
 patch_warp_keybindings() {
-    info "Dang kiem tra Warp keybindings..."
+    info "Đang kiểm tra Warp keybindings..."
     local keybindings_file="$WARP_SETTINGS_DIR/keybindings.yaml"
     if [ ! -f "$keybindings_file" ]; then
         echo "# Fix Warp Vietnamese Input - Keybindings" > "$keybindings_file"
-        success "Da tao keybindings config"
+        success "Đã tạo keybindings config"
     else
-        info "Keybindings file da ton tai, giu nguyen"
+        info "Keybindings file đã tồn tại, giữ nguyên"
     fi
 }
 
 fix_macos_specific() {
     if [ "$OS" != "macos" ]; then return; fi
-    info "Ap dung fix cho macOS..."
+    info "Áp dụng fix cho macOS..."
     defaults write dev.warp.Warp-Stable ApplePressAndHoldEnabled -bool false 2>/dev/null || true
-    success "Da ap dung macOS-specific fixes"
+    success "Đã áp dụng macOS-specific fixes"
 }
 
 fix_windows_specific() {
     if [ "$OS" != "windows" ]; then return; fi
-    info "Ap dung fix cho Windows (UniKey)..."
+    info "Áp dụng fix cho Windows (UniKey)..."
     echo ""
-    echo -e "${CYAN}${BOLD}=== Huong dan cau hinh UniKey cho Warp ===${NC}"
+    echo -e "${CYAN}${BOLD}=== Hướng dẫn cấu hình UniKey cho Warp ===${NC}"
     echo ""
-    echo "  1. Mo UniKey -> Click chuot phai vao icon tren taskbar"
-    echo "  2. Chon Bang dieu khien (Control Panel)"
-    echo "  3. Thiet lap:"
+    echo "  1. Mở UniKey → Click chuột phải vào icon UniKey trên taskbar"
+    echo "  2. Chọn Bảng điều khiển (Control Panel)"
+    echo "  3. Thiết lập như sau:"
     echo "     +-------------------------------------------+"
-    echo "     | Bang ma:     Unicode                      |"
-    echo "     | Kieu go:     Telex                        |"
-    echo "     | Mo rong:                                  |"
-    echo "     |   [x] Cho phep go tu do                   |"
-    echo "     |   [x] Tu dong khoi phuc phim khong dau    |"
-    echo "     |   [x] Bo dau kieu moi                     |"
+    echo "     | Bảng mã:     Unicode                      |"
+    echo "     | Kiểu gõ:     Telex                        |"
+    echo "     | Mở rộng:                                  |"
+    echo "     |   [x] Cho phép gõ tự do                   |"
+    echo "     |   [x] Tự động khôi phục phím không dấu    |"
+    echo "     |   [x] Bỏ dấu kiểu mới                     |"
     echo "     +-------------------------------------------+"
     echo ""
 
-    echo "  4. QUAN TRONG: Neu van bi loi:"
-    echo "     -> Mo rong -> [x] Su dung clipboard de go"
-    echo "     (Workaround hieu qua nhat cho Warp tren Windows)"
+    echo "  4. QUAN TRỌNG: Nếu vẫn bị lỗi:"
+    echo "     → Mở rộng → ☑ Sử dụng clipboard để gõ"
+    echo "     (Đây là workaround hiệu quả nhất cho Warp trên Windows)"
     echo ""
-    echo "  5. Nhan Dong va restart Warp Terminal"
+    echo "  5. Nhấn Đóng và restart Warp Terminal"
     echo ""
-    success "Da hien thi huong dan UniKey"
+    success "Đã hiển thị hướng dẫn UniKey"
 }
 
 verify_install() {
     echo ""
-    echo -e "${GREEN}${BOLD}=== Cai dat hoan tat! ===${NC}"
+    echo -e "${GREEN}${BOLD}=== Cài đặt hoàn tất! ===${NC}"
     echo ""
     echo "  Backup: $BACKUP_DIR"
     echo ""
-    echo "  Buoc tiep theo:"
-    echo "  1. Dong hoan toan Warp Terminal"
-    echo "  2. Mo lai Warp Terminal"
-    echo "  3. Go vn-test de kiem tra tieng Viet"
-    echo "  4. Go vn-status de xem trang thai"
+    echo "  Bước tiếp theo:"
+    echo "  1. Đóng hoàn toàn Warp Terminal"
+    echo "  2. Mở lại Warp Terminal"
+    echo "  3. Gõ vn-test để kiểm tra tiếng Việt"
+    echo "  4. Gõ vn-status để xem trạng thái fix"
     echo ""
-    echo "  Neu van bi loi tren Windows:"
-    echo "  -> Mo UniKey -> Mo rong -> [x] Su dung clipboard de go"
+    echo "  Nếu vẫn bị lỗi trên Windows:"
+    echo "  -> Mo UniKey → Mở rộng → ☑ Sử dụng clipboard để gõ"
     echo ""
-    echo "  Go cai dat: ./uninstall.sh"
+    echo "  Gỡ cài đặt: ./uninstall.sh"
     echo ""
 }
 
@@ -261,7 +261,7 @@ main() {
     detect_os
     get_warp_config_dir
     echo ""
-    info "Bat dau fix Vietnamese input cho Warp Terminal..."
+    info "Bắt đầu fix Vietnamese input cho Warp Terminal..."
     echo ""
     backup_configs
     patch_warp_settings

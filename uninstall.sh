@@ -22,7 +22,7 @@ for config in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.bash_profi
         tmp_file=$(mktemp)
         sed "/$MARKER_START/,/$MARKER_END/d" "$config" > "$tmp_file"
         mv "$tmp_file" "$config"
-        success "Da xoa fix block tu $config"
+        success "Đã xóa fix block từ $config"
     fi
 done
 
@@ -34,14 +34,14 @@ fi
 
 if [ -n "$LATEST_BACKUP" ] && [ -d "$LATEST_BACKUP" ]; then
     echo ""
-    info "Tim thay backup tai: $LATEST_BACKUP"
-    read -r -p "Ban co muon khoi phuc backup? (y/N): " answer
+    info "Tìm thấy backup tại: $LATEST_BACKUP"
+    read -r -p "Bạn có muốn khôi phục backup? (y/N): " answer
     if [[ "$answer" =~ ^[Yy]$ ]]; then
         # Restore shell profiles
         for profile in ".bashrc" ".zshrc" ".profile" ".bash_profile"; do
             if [ -f "$LATEST_BACKUP/$profile" ]; then
                 cp "$LATEST_BACKUP/$profile" "$HOME/$profile"
-                success "Da khoi phuc $profile"
+                success "Đã khôi phục $profile"
             fi
         done
 
@@ -60,14 +60,14 @@ if [ -n "$LATEST_BACKUP" ] && [ -d "$LATEST_BACKUP" ]; then
             esac
             if [ -n "${WARP_DIR:-}" ]; then
                 cp -r "$LATEST_BACKUP/warp-config/"* "$WARP_DIR/" 2>/dev/null || true
-                success "Da khoi phuc Warp config"
+                success "Đã khôi phục Warp config"
             fi
         fi
     fi
 fi
 
 echo ""
-success "Da go cai dat fix-warp-vietnamese-input!"
+success "Đã gỡ cài đặt fix-warp-vietnamese-input!"
 echo ""
-echo "  Hay restart Warp Terminal de ap dung thay doi."
+echo "  Hãy restart Warp Terminal để áp dụng thay đổi."
 echo ""

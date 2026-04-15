@@ -14,3 +14,11 @@ Thumbs.db
 !.knowns/templates/
 !.knowns/templates/**
 # <<< KNOWNS <<<
+
+.agent/
+.claude/
+.knowns/
+.mcp.json
+opencode.json
+_gen*.py
+_write*.py
