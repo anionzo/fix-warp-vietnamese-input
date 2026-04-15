@@ -239,9 +239,9 @@ fix_windows_specific() {
 
 verify_install() {
     echo ""
-    echo -e "\=== Cai dat hoan tat! ==="
+    echo -e "${GREEN}${BOLD}=== Cai dat hoan tat! ===${NC}"
     echo ""
-    echo "  Backup: "
+    echo "  Backup: $BACKUP_DIR"
     echo ""
     echo "  Buoc tiep theo:"
     echo "  1. Dong hoan toan Warp Terminal"
@@ -272,4 +272,4 @@ main() {
     verify_install
 }
 
-main ""
+main "$@"
